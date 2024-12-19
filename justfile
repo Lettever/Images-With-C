@@ -2,7 +2,7 @@ default:
     just --list
 
 build:
-    gcc src/*.c -o out.exe
+    gcc src/*.c -Wall -Wextra -o out.exe
 
 clean:
     rm -f ./out.exe

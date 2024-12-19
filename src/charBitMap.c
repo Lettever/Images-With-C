@@ -23,7 +23,8 @@ int hexDigitToNum(char ch) {
 void initCharMap() {
     // To initialize the map we'll be reading from 'letters.txt'
     // The file has an encoding of type CX0X1X2X3X4
-    // Where C is the character and all X's is a bitmap of each column from the bottom to the top, for example:
+    // Where C is the character and all X's are 2 hexadecimals characters that say if a bit is on or off in a column
+    // For example:
     // AFC121112FC
     // C = A, X0 = FC, X1 = 12, X2 = 11, X3 = 12, X4 = FC
     // Decoding to binary
@@ -42,8 +43,6 @@ void initCharMap() {
         fprintf(stderr, "Could not initialize charBitMap");
         exit(1);
     }
-
-    CharBitMap bitMap;
 
     while (fgets(buffer, MAX_BUFFER_SIZE, f) != NULL) {
         char ch = buffer[0];
