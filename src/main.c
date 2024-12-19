@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 #include "colors.h"
 
 typedef uint8_t u8;
@@ -12,6 +13,10 @@ typedef int8_t i8;
 typedef int16_t i16;
 typedef int32_t i32;
 typedef int64_t i64;
+typedef u8 charBitMap[8][5];
+
+u8 charMap[256][8][5];
+// for the fonts: https://departuremono.com/
 
 #pragma pack(push, 1) // Ensure structures are packed tightly in memory
 
@@ -46,11 +51,12 @@ typedef struct {
     i32 height, width;
 } Buffer;
 
+void initCharMap();
 void drawCharacter(Buffer *buffer, int y, int x, Color color, char ch);
 void drawText(Buffer *buffer, int y, int x, Color color, const char* text);
-void drawLine(Buffer *buffer, int y1, int x1, int y2, int x2);
+void drawLine(Buffer *buffer, int y1, int x1, int y2, int x2, Color color);
 
-void buffer_init(Buffer *buffer, i32 height, i32 width) {
+void bufferInit(Buffer *buffer, i32 height, i32 width) {
     buffer->height = height;
     buffer->width = width;
     buffer->buf = calloc(height * width, sizeof(*buffer->buf));
@@ -58,6 +64,19 @@ void buffer_init(Buffer *buffer, i32 height, i32 width) {
 }
 
 int main() {
+    printf("%lli\n", sizeof(charBitMap));
+    initCharMap();
+    u8 A[8][5];
+    memcpy(A, charMap['A'], sizeof(charBitMap));
+
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 5; j++) {
+            if (A[i][j] == 1) printf("#");
+            else printf(" ");
+        }
+        printf("\n");
+    }
+    return 0;
     i32 width = 256, height = 256;
     const char *filename = "output_image.bmp";
     FILE *file = fopen(filename, "wb");
@@ -91,7 +110,7 @@ int main() {
     fwrite(&infoHeader, sizeof(infoHeader), 1, file);
     
     Buffer buffer = { 0 };
-    buffer_init(&buffer, height, width);
+    bufferInit(&buffer, height, width);
 
     for (int y = 0; y < height; y++) {
        for (int x = 0; x < width; x++) {
@@ -113,17 +132,95 @@ int main() {
     return 0;
 }
 
+void initCharMap() {
+    printf("%c\n", 219);
+    // To initialize the map we'll be reading from 'letters.txt'
+    // The file has an encoding of type CX0X1X2X3X4
+    // Where C is the character and all X is a bitmap of each column from the bottom to the top, for example:
+    // AFC121112FC
+    // C = A, X0 = FC, X1 = 12, X2 = 11, X3 = 12, X4 = FC
+    // Decoding to binary
+    // X0 = 1 1 1 1 1 1 0 0
+    // X1 = 0 0 0 1 0 0 1 0 
+    // X1 = 0 0 0 1 0 0 0 1 
+    // X3 = 0 0 0 1 0 0 1 0 
+    // X4 = 1 1 1 1 1 1 0 0
+    // If you turn that thing counter-clockwise, you will see an 'A'
+    
+    u8 A[8][5] = {
+        { 0, 0, 1, 0, 0 },
+        { 0, 1, 0, 1, 0 },
+        { 1, 0, 0, 0, 1 },
+        { 1, 0, 0, 0, 1 },
+        { 1, 1, 1, 1, 1 },
+        { 1, 0, 0, 0, 1 },
+        { 1, 0, 0, 0, 1 },
+        { 1, 0, 0, 0, 1 },
+    };
+    memcpy(charMap['A'], A, sizeof(charBitMap));
+    printf("ok\n");
+}
+
 void drawCharacter(Buffer *buffer, int y, int x, Color color, char ch) {
+    (void) buffer;
+    (void) y;
+    (void) x;
+    (void) color;
+    (void) ch;
     assert(0 && "TODO");
 }
 
 void drawText(Buffer *buffer, int y, int x, Color color, const char* text) {
+    (void) buffer;
+    (void) y;
+    (void) x;
+    (void) color;
+    (void) text;
     assert(0 && "TODO");
 }
 
-void drawLine(Buffer *buffer, int y1, int x1, int y2, int x2) {
+void drawLine(Buffer *buffer, int y1, int x1, int y2, int x2, Color color) {
+    (void) buffer;
+    (void) y1;
+    (void) x1;
+    (void) y2;
+    (void) x2;
+    (void) color;
     assert(0 && "TODO");
 }
 
-// 7 * 8
-// for the fonts: https://departuremono.com/
+/*
+0 0 1 0 0
+0 1 0 1 0
+1 0 0 0 1
+1 0 0 0 1
+1 1 1 1 1
+1 0 0 0 1
+1 0 0 0 1
+1 0 0 0 1
+
+1 1 1 1 1 1 0 0 -> FC
+0 0 0 1 0 0 1 0 -> 12
+0 0 0 1 0 0 0 1 -> 11
+0 0 0 1 0 0 1 0 -> 11
+1 1 1 1 1 1 0 0 -> FC
+*/
+
+/*
+j
+40 -> 0 1 0 0 0 0 0 0
+84 -> 1 0 0 0 0 1 0 0
+84 -> 1 0 0 0 0 1 0 0
+7D -> 0 1 1 1 1 1 0 1
+00 -> 0 0 0 0 0 0 0 0
+
+___#_
+_____
+_###_
+___#_
+___#_
+___#_
+#__#_
+_###_
+
+ */
