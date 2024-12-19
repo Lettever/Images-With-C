@@ -1,22 +1,13 @@
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <ctype.h>
+#include <assert.h>
+
 #include "colors.h"
-
-typedef uint8_t u8;
-typedef uint16_t u16;
-typedef uint32_t u32;
-typedef uint64_t u64;
-typedef int8_t i8;
-typedef int16_t i16;
-typedef int32_t i32;
-typedef int64_t i64;
-typedef u8 charBitMap[8][5];
-
-u8 charMap[256][8][5];
-// for the fonts: https://departuremono.com/
+#include "charBitMap.h"
+#include "typedef.h"
 
 #pragma pack(push, 1) // Ensure structures are packed tightly in memory
 
@@ -51,7 +42,6 @@ typedef struct {
     i32 height, width;
 } Buffer;
 
-void initCharMap();
 void drawCharacter(Buffer *buffer, int y, int x, Color color, char ch);
 void drawText(Buffer *buffer, int y, int x, Color color, const char* text);
 void drawLine(Buffer *buffer, int y1, int x1, int y2, int x2, Color color);
@@ -64,18 +54,32 @@ void bufferInit(Buffer *buffer, i32 height, i32 width) {
 }
 
 int main() {
-    printf("%lli\n", sizeof(charBitMap));
     initCharMap();
     u8 A[8][5];
-    memcpy(A, charMap['A'], sizeof(charBitMap));
-
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 5; j++) {
-            if (A[i][j] == 1) printf("#");
-            else printf(" ");
+    for (int ch = 'A'; ch <= 'Z'; ch++) {
+        memcpy(A, charMap[ch], sizeof(CharBitMap));
+        printf("%c:\n", ch);
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 5; j++) {
+                if (A[i][j] == 1) printf("#");
+                else printf(" ");
+            }
+            printf("\n");
         }
-        printf("\n");
     }
+
+    for (int ch = 'a'; ch <= 'z'; ch++) {
+        memcpy(A, charMap[ch], sizeof(CharBitMap));
+        printf("%c:\n", ch);
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 5; j++) {
+                if (A[i][j] == 1) printf("%c", 219);
+                else printf(" ");
+            }
+            printf("\n");
+        }
+    }
+
     return 0;
     i32 width = 256, height = 256;
     const char *filename = "output_image.bmp";
@@ -132,34 +136,7 @@ int main() {
     return 0;
 }
 
-void initCharMap() {
-    printf("%c\n", 219);
-    // To initialize the map we'll be reading from 'letters.txt'
-    // The file has an encoding of type CX0X1X2X3X4
-    // Where C is the character and all X is a bitmap of each column from the bottom to the top, for example:
-    // AFC121112FC
-    // C = A, X0 = FC, X1 = 12, X2 = 11, X3 = 12, X4 = FC
-    // Decoding to binary
-    // X0 = 1 1 1 1 1 1 0 0
-    // X1 = 0 0 0 1 0 0 1 0 
-    // X1 = 0 0 0 1 0 0 0 1 
-    // X3 = 0 0 0 1 0 0 1 0 
-    // X4 = 1 1 1 1 1 1 0 0
-    // If you turn that thing counter-clockwise, you will see an 'A'
-    
-    u8 A[8][5] = {
-        { 0, 0, 1, 0, 0 },
-        { 0, 1, 0, 1, 0 },
-        { 1, 0, 0, 0, 1 },
-        { 1, 0, 0, 0, 1 },
-        { 1, 1, 1, 1, 1 },
-        { 1, 0, 0, 0, 1 },
-        { 1, 0, 0, 0, 1 },
-        { 1, 0, 0, 0, 1 },
-    };
-    memcpy(charMap['A'], A, sizeof(charBitMap));
-    printf("ok\n");
-}
+
 
 void drawCharacter(Buffer *buffer, int y, int x, Color color, char ch) {
     (void) buffer;

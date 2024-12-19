@@ -1,7 +1,7 @@
-//#include <stdint.h>
+#include "typedef.h"
 
 typedef struct {
-    uint8_t b, g, r, a;
+    u8 b, g, r, a;
 } Color;
 
 #define GOLD ((Color) { 0, 203, 255, 255 })
