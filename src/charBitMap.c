@@ -38,6 +38,7 @@ void initCharMap() {
 
     char buffer[MAX_BUFFER_SIZE + 1];
     FILE *f = fopen(FILE_PATH, "r");  
+    
     if (f == NULL) {
         fprintf(stderr, "Could not open '%s' file\n", FILE_PATH);
         fprintf(stderr, "Could not initialize charBitMap");
@@ -58,15 +59,6 @@ void initCharMap() {
         }
     }
 
-    // read line by line 
-    // "ignore" first char and get two hex chars and convert them to u16
-    // 
-    // 
-    // 
-    // 
-    //
-     
-    //memcpy(charMap['A'], A, sizeof(charBitMap));
     fclose(f);
     printf("ok\n");
 }
