@@ -1,8 +1,10 @@
+set shell := ["nu", "-c"]
+
 default:
     just --list
 
 build:
-    gcc src/*.c -Wall -Wextra -o out.exe
+    clang src/*.c -Wall -Wextra -o out.exe
 
 clean:
     rm -f ./out.exe

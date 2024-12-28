@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "charBitMap.h"
 
 #include <stdio.h>
@@ -17,7 +19,7 @@ int hexDigitToNum(char ch) {
     if (islower(ch)) return ch - 'a' + 10;
     if (isupper(ch)) return ch - 'A' + 10;
     fprintf(stderr, "ERROR: >%c< is an unacceptable character\n", ch);
-    assert(0);
+    exit(1);
 }
 
 void initCharMap() {
@@ -35,30 +37,26 @@ void initCharMap() {
     // X4 = 1 1 1 1 1 1 0 0
     // If you turn that thing counter-clockwise, you will see an 'A'
 
-
     char buffer[MAX_BUFFER_SIZE + 1];
-    FILE *f = fopen(FILE_PATH, "r");  
+    FILE *fp = fopen(FILE_PATH, "r");  
     
-    if (f == NULL) {
+    if (fp == NULL) {
         fprintf(stderr, "Could not open '%s' file\n", FILE_PATH);
         fprintf(stderr, "Could not initialize charBitMap");
         exit(1);
     }
 
-    while (fgets(buffer, MAX_BUFFER_SIZE, f) != NULL) {
+    while (fgets(buffer, MAX_BUFFER_SIZE, fp) != NULL) {
         char ch = buffer[0];
         for (u8 c = 0; c < MAX_CHARS_LEN; c += 2) {
             u16 n = hexDigitToNum(buffer[c + 1]) * 16 + hexDigitToNum(buffer[c + 2]);
-            printf("%d %x\n", n, n);
             int j = c / 2;
             for (u8 i = 0; i < 8; i++) {
-                printf("%d", (n >> (7 - i)) & 1);
-                charMap[ch][7 - i][j] = (n >> (7 - i)) & 1;
+                charMap[(u8)ch][7 - i][j] = (n >> (7 - i)) & 1;
             }
-            printf("\n");
         }
     }
 
-    fclose(f);
+    fclose(fp);
     printf("ok\n");
 }

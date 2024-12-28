@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -5,6 +7,7 @@
 #include <ctype.h>
 #include <assert.h>
 
+#include "buffer.h"
 #include "colors.h"
 #include "charBitMap.h"
 #include "typedef.h"
@@ -37,25 +40,14 @@ typedef struct {
 
 #pragma pack(pop)
 
-typedef struct {
-    Color *buf;
-    i32 height, width;
-} Buffer;
-
 void drawCharacter(Buffer *buffer, int y, int x, Color color, char ch);
 void drawText(Buffer *buffer, int y, int x, Color color, const char* text);
 void drawLine(Buffer *buffer, int y1, int x1, int y2, int x2, Color color);
 
-void bufferInit(Buffer *buffer, i32 height, i32 width) {
-    buffer->height = height;
-    buffer->width = width;
-    buffer->buf = calloc(height * width, sizeof(*buffer->buf));
-    assert((buffer->buf != NULL) && "Could not alocate buffer, download more RAM\n");
-}
-
 int main() {
     initCharMap();
     u8 A[8][5];
+    /*
     for (int ch = 'A'; ch <= 'Z'; ch++) {
         memcpy(A, charMap[ch], sizeof(CharBitMap));
         printf("%c:\n", ch);
@@ -73,14 +65,13 @@ int main() {
         printf("%c:\n", ch);
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 5; j++) {
-                if (A[i][j] == 1) printf("%c", 219);
+                if (A[i][j] == 1) printf("%c", '#');
                 else printf(" ");
             }
             printf("\n");
         }
     }
-
-    return 0;
+    */
     i32 width = 256, height = 256;
     const char *filename = "output_image.bmp";
     FILE *file = fopen(filename, "wb");
@@ -117,18 +108,25 @@ int main() {
     bufferInit(&buffer, height, width);
 
     for (int y = 0; y < height; y++) {
-       for (int x = 0; x < width; x++) {
-           if (y < height / 2) buffer.buf[y * width + x] = (Color) { 255, 0, 0, 0 };
-           else buffer.buf[y * width + x] = RED;
-       }
+        for (int x = 0; x < width; x++) {
+            buffer.buf[y * width + x] = WHITE;
+        }
     }
-
-    for (int y = height / 2 - 50; y < height / 2 + 50; y++) {
-       for (int x = width / 2 - 50; x < width / 2 + 50; x++) {
-           buffer.buf[y * width + x] = GOLD;
-       }
+    
+    memcpy(A, charMap['A'], sizeof(CharBitMap));
+    int dy = 50, dx = 50;
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 5; x++) {
+            Color *c = bufferGet(&buffer, y + dy, x + dx);
+            if (A[y][x] == 1) {
+                *c = BLACK;
+            } else {
+                *c = RED;
+            }
+        }
+        //printf("\n");
     }
-
+    
     fwrite(buffer.buf, sizeof(*buffer.buf), buffer.height * buffer.width, file);
     fclose(file);
     free(buffer.buf);
